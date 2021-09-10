@@ -327,17 +327,20 @@ func (s *SubscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 			s.logger.Debug("dispatch message", zap.String("deadLetter", deadLetter.String()))
 		}
 
-		executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
-		if err != nil {
-			s.logger.Error("Failed to dispatch message: ", zap.Error(err))
-			return
-		}
-		// TODO: Actually report the stats
-		// https://github.com/knative-sandbox/eventing-natss/issues/39
-		s.logger.Debug("Dispatch details", zap.Any("DispatchExecutionInfo", executionInfo))
-		if err := stanMsg.Ack(); err != nil {
-			s.logger.Error("failed to acknowledge message", zap.Error(err))
-		}
+		go func() {
+			executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
+			if err != nil {
+				s.logger.Error("Failed to dispatch message: ", zap.Error(err))
+				return
+			}
+			// TODO: Actually report the stats
+			// https://github.com/knative-sandbox/eventing-natss/issues/39
+			s.logger.Debug("Dispatch details", zap.Any("DispatchExecutionInfo", executionInfo))
+
+			if err := stanMsg.Ack(); err != nil {
+				s.logger.Error("failed to acknowledge message", zap.Error(err))
+			}
+		}()
 
 		s.logger.Debug("message dispatched", zap.Any("channel", channel))
 	}
