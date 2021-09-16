@@ -328,7 +328,7 @@ func (s *SubscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 		}
 
 		go func(ctx context.Context, message natsscloudevents.Message, destination url.URL, reply url.URL, deadLetter url.URL) {
-			executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
+			executionInfo, err := s.dispatcher.DispatchMessage(ctx, &message, nil, &destination, &reply, &deadLetter)
 			if err != nil {
 				s.logger.Error("Failed to dispatch message: ", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
 				return
@@ -342,7 +342,7 @@ func (s *SubscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 			}
 
 			s.logger.Debug("message dispatched", zap.Any("channel", channel), zap.Uint64("sequence", message.Msg.Sequence))
-		}(ctx, message, destination, reply, deadLetter)
+		}(ctx, *message, *destination, *reply, *deadLetter)
 	}
 
 	ch := getSubject(channel)
