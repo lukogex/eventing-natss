@@ -327,22 +327,22 @@ func (s *SubscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 			s.logger.Debug("dispatch message", zap.String("deadLetter", deadLetter.String()), zap.Uint64("sequence", stanMsg.Sequence))
 		}
 
-		go func() {
+		go func(ctx context.Context, message *natsscloudevents.Message, destination *url.URL, reply *url.URL, deadLetter *url.URL) {
 			executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
 			if err != nil {
-				s.logger.Error("Failed to dispatch message: ", zap.Error(err), zap.Uint64("sequence", stanMsg.Sequence))
+				s.logger.Error("Failed to dispatch message: ", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
 				return
 			}
 			// TODO: Actually report the stats
 			// https://github.com/knative-sandbox/eventing-natss/issues/39
-			s.logger.Debug("Dispatch details", zap.Any("DispatchExecutionInfo", executionInfo), zap.Uint64("sequence", stanMsg.Sequence))
+			s.logger.Debug("Dispatch details", zap.Any("DispatchExecutionInfo", executionInfo), zap.Uint64("sequence", message.Msg.Sequence))
 
 			if err := stanMsg.Ack(); err != nil {
-				s.logger.Error("failed to acknowledge message", zap.Error(err), zap.Uint64("sequence", stanMsg.Sequence))
+				s.logger.Error("failed to acknowledge message", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
 			}
 
-			s.logger.Debug("message dispatched", zap.Any("channel", channel), zap.Uint64("sequence", stanMsg.Sequence))
-		}()
+			s.logger.Debug("message dispatched", zap.Any("channel", channel), zap.Uint64("sequence", message.Msg.Sequence))
+		}(ctx, message, destination, reply, deadLetter)
 	}
 
 	ch := getSubject(channel)
