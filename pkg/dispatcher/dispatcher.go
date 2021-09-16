@@ -304,7 +304,7 @@ func (s *SubscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 
 		message, err := natsscloudevents.NewMessage(stanMsg, natsscloudevents.WithManualAcks())
 		if err != nil {
-			s.logger.Error("could not create a message", zap.Error(err))
+			s.logger.Error("could not create a message", zap.Error(err), zap.Uint64("sequence", stanMsg.Sequence))
 			return
 		}
 		s.logger.Debug("NATSS message received", zap.String("subject", stanMsg.Subject), zap.Uint64("sequence", stanMsg.Sequence), zap.Time("timestamp", time.Unix(stanMsg.Timestamp, 0)))
@@ -312,37 +312,37 @@ func (s *SubscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 		var destination *url.URL
 		if !subscription.SubscriberURI.IsEmpty() {
 			destination = subscription.SubscriberURI.URL()
-			s.logger.Debug("dispatch message", zap.String("destination", destination.String()))
+			s.logger.Debug("dispatch message", zap.String("destination", destination.String()), zap.Uint64("sequence", stanMsg.Sequence))
 		}
 
 		var reply *url.URL
 		if !subscription.ReplyURI.IsEmpty() {
 			reply = subscription.ReplyURI.URL()
-			s.logger.Debug("dispatch message", zap.String("reply", reply.String()))
+			s.logger.Debug("dispatch message", zap.String("reply", reply.String()), zap.Uint64("sequence", stanMsg.Sequence))
 		}
 
 		var deadLetter *url.URL
 		if subscription.Delivery != nil && subscription.Delivery.DeadLetterSink != nil && !subscription.Delivery.DeadLetterSink.URI.IsEmpty() {
 			deadLetter = subscription.Delivery.DeadLetterSink.URI.URL()
-			s.logger.Debug("dispatch message", zap.String("deadLetter", deadLetter.String()))
+			s.logger.Debug("dispatch message", zap.String("deadLetter", deadLetter.String()), zap.Uint64("sequence", stanMsg.Sequence))
 		}
 
 		go func() {
 			executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
 			if err != nil {
-				s.logger.Error("Failed to dispatch message: ", zap.Error(err))
+				s.logger.Error("Failed to dispatch message: ", zap.Error(err), zap.Uint64("sequence", stanMsg.Sequence))
 				return
 			}
 			// TODO: Actually report the stats
 			// https://github.com/knative-sandbox/eventing-natss/issues/39
-			s.logger.Debug("Dispatch details", zap.Any("DispatchExecutionInfo", executionInfo))
+			s.logger.Debug("Dispatch details", zap.Any("DispatchExecutionInfo", executionInfo), zap.Uint64("sequence", stanMsg.Sequence))
 
 			if err := stanMsg.Ack(); err != nil {
-				s.logger.Error("failed to acknowledge message", zap.Error(err))
+				s.logger.Error("failed to acknowledge message", zap.Error(err), zap.Uint64("sequence", stanMsg.Sequence))
 			}
-		}()
 
-		s.logger.Debug("message dispatched", zap.Any("channel", channel))
+			s.logger.Debug("message dispatched", zap.Any("channel", channel), zap.Uint64("sequence", stanMsg.Sequence))
+		}()
 	}
 
 	ch := getSubject(channel)
