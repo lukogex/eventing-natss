@@ -5,27 +5,29 @@ aliases:
   api-core-wg-leads:
   - dprotaso
   async-component-approvers:
-  - beemarie
+  - bvennam
   - julz
   - maximilien
   autoscaling-wg-leads:
-  - markusthoemmes
-  - vagababov
+  - julz
   client-wg-leads:
+  - dsimansk
   - navidshaikh
   - rhuss
   client-writers:
+  - dsimansk
   - navidshaikh
   - rhuss
+  container-freezer-approvers:
+  - julz
+  - psschwei
   control-protocol-approvers:
   - devguyio
+  - eric-sap
   - lionelvillard
   - matzew
-  - slinkydeveloper
+  - travis-minke-sap
   - vaikas
-  delivery-wg-leads:
-  - matzew
-  - slinkydeveloper
   discovery-approvers:
   - lberk
   - n3wscott
@@ -37,18 +39,23 @@ aliases:
   - zroubalik
   eventing-awssqs-approvers:
   - lberk
+  - matzew
   eventing-camel-approvers:
   - nicolaferraro
   eventing-ceph-approvers:
   - lberk
+  - matzew
   eventing-couchdb-approvers:
   - lberk
   - lionelvillard
+  - matzew
   eventing-github-approvers:
   - lberk
+  - matzew
   eventing-gitlab-approvers:
   - antoineco
   - lberk
+  - matzew
   - sebgoa
   - tzununbekov
   eventing-kafka-approvers:
@@ -59,36 +66,47 @@ aliases:
   - lberk
   - matzew
   - phamilton
+  - pierDipi
   - steven0711dong
   - travis-minke-sap
   eventing-kafka-broker-approvers:
+  - aliok
+  - matzew
   - pierDipi
-  - slinkydeveloper
   eventing-kafka-mtsource-approvers:
   - steven0711dong
+  eventing-kafka-wg-leads:
+  - devguyio
+  - lionelvillard
+  - travis-minke-sap
+  eventing-kafka-writers:
+  - devguyio
+  - lionelvillard
+  - travis-minke-sap
+  eventing-kogito-approvers:
+  - ricardozanini
+  - spolti
+  - vaibhavjainwiz
   eventing-natss-approvers:
   - devguyio
   - zhaojizhuang
   eventing-prometheus-approvers:
   - lberk
+  - matzew
   eventing-rabbitmq-approvers:
-  - n3wscott
-  - sbawaska
-  - vaikas
+  - benmoss
+  - salaboy
+  - xtreme-sameer-vohra
   eventing-redis-approvers:
   - aavarghese
   - lionelvillard
+  - matzew
   eventing-wg-leads:
   - devguyio
   - lionelvillard
-  - vaikas
   eventing-writers:
   - devguyio
   - lionelvillard
-  - matzew
-  - n3wscott
-  - slinkydeveloper
-  - vaikas
   homebrew-kn-plugins-approvers:
   - dsimansk
   - maximilien
@@ -105,9 +123,27 @@ aliases:
   kn-plugin-event-approvers:
   - cardil
   - rhuss
+  kn-plugin-func-approvers:
+  - lance
+  - lkingland
+  - matejvasek
+  - nainaz
+  - omerbensaadon
+  - zroubalik
   kn-plugin-migration-approvers:
   - maximilien
   - zhangtbj
+  kn-plugin-operator-approvers:
+  - csantanapr
+  - dsimansk
+  - houshengbo
+  - maximilien
+  - omerbensaadon
+  - rhuss
+  kn-plugin-quickstart-approvers:
+  - csantanapr
+  - omerbensaadon
+  - psschwei
   kn-plugin-sample-approvers:
   - maximilien
   - navidshaikh
@@ -125,7 +161,7 @@ aliases:
   - nicolaferraro
   - rhuss
   knative-admin:
-  - bsnchan
+  - csantanapr
   - dprotaso
   - evankanderson
   - julz
@@ -133,38 +169,17 @@ aliases:
   - knative-prow-robot
   - knative-prow-updater-robot
   - knative-test-reporter-robot
+  - lance
   - markusthoemmes
   - matzew
-  - mbehrendt
+  - nak3
   - pmorie
   - rhuss
   - thisisnotapril
   - vaikas
-  knative-milestone-maintainers:
-  - ZhiminXiang
-  - akashrv
-  - aslom
-  - chaodaiG
-  - csantanapr
-  - dprotaso
-  - evankanderson
-  - josephburnett
-  - julz
-  - k4leung4
-  - lionelvillard
-  - markusthoemmes
-  - mikehelmick
-  - n3wscott
-  - nak3
-  - navidshaikh
-  - rhuss
-  - slinkydeveloper
-  - tcnghia
-  - vagababov
-  - vaikas
   knative-release-leads:
-  - dprotaso
   - matzew
+  - nak3
   knative-robots:
   - knative-prow-releaser-robot
   - knative-prow-robot
@@ -175,21 +190,26 @@ aliases:
   - zhanggbj
   net-certmanager-approvers:
   - ZhiminXiang
+  - tcnghia
   net-contour-approvers:
   - dprotaso
-  net-http---approvers:
   - tcnghia
-  net-ingressv--approvers:
+  net-gateway-api-approvers:
   - markusthoemmes
   - nak3
+  - tcnghia
+  net-http01-approvers:
+  - tcnghia
   net-istio-approvers:
   - JRBANCEL
   - ZhiminXiang
   - nak3
+  - tcnghia
   - vagababov
   net-kourier-approvers:
   - davidor
   - jmprusi
+  - tcnghia
   networking-wg-leads:
   - ZhiminXiang
   - nak3
@@ -214,15 +234,13 @@ aliases:
   serving-writers:
   - ZhiminXiang
   - dprotaso
-  - markusthoemmes
+  - julz
   - nak3
-  - vagababov
   source-wg-leads:
   - lionelvillard
-  - n3wscott
   steering-committee:
-  - bsnchan
-  - mbehrendt
+  - csantanapr
+  - lance
   - pmorie
   - thisisnotapril
   - vaikas
@@ -234,7 +252,7 @@ aliases:
   - rhuss
   ux-wg-leads:
   - csantanapr
-  - omerbensaadon
+  - snneji
   ux-writers:
   - csantanapr
-  - omerbensaadon
+  - snneji
