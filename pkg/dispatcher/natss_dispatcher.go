@@ -38,7 +38,7 @@ import (
 	eventingchannels "knative.dev/eventing/pkg/channel"
 	"knative.dev/eventing/pkg/kncloudevents"
 
-	"knative.dev/eventing-natss/pkg/stanutil"
+	"knative.dev/eventing-natss/pkg/natsutil"
 )
 
 const (
@@ -94,7 +94,7 @@ type Args struct {
 var _ NatsDispatcher = (*subscriptionsSupervisor)(nil)
 
 // NewNatssDispatcher returns a new NatsDispatcher.
-func NewNatssDispatcher(args Args) (NatssDispatcher, error) {
+func NewNatssDispatcher(args Args) (NatsDispatcher, error) {
 	if args.Logger == nil {
 		args.Logger = zap.NewNop()
 	}
@@ -177,7 +177,7 @@ func (s *subscriptionsSupervisor) connectWithRetry(ctx context.Context) {
 	ticker := time.NewTicker(retryInterval)
 	defer ticker.Stop()
 	for {
-		nConn, err := stanutil.Connect(s.clusterID, s.clientID, s.natssURL, s.logger.Sugar())
+		nConn, err := natsutil.Connect(s.clusterID, s.clientID, s.natssURL, s.logger.Sugar())
 		if err == nil {
 			// Locking here in order to reduce time in locked state.
 			s.natssConnMux.Lock()
@@ -347,7 +347,7 @@ func (s *subscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 		s.logger.Error(" Create new NATSS Subscription failed: ", zap.Error(err))
 		if err.Error() == stan.ErrConnectionClosed.Error() {
 			s.logger.Error("Connection to NATSS has been lost, attempting to reconnect.")
-			// Informing SubscriptionsSupervisor to re-establish connection to NATS
+			// Informing subscriptionsSupervisor to re-establish connection to NATS
 			s.signalReconnect()
 			return nil, err
 		}
@@ -376,7 +376,7 @@ func (s *subscriptionsSupervisor) dispatchMessage(ctx context.Context, message *
 }
 
 // should be called only while holding subscriptionsMux
-func (s *SubscriptionsSupervisor) unsubscribe(channel eventingchannels.ChannelReference, subscription types.UID) error {
+func (s *subscriptionsSupervisor) unsubscribe(channel eventingchannels.ChannelReference, subscription types.UID) error {
 	s.logger.Info("Unsubscribe from channel:", zap.Any("channel", channel), zap.Any("subscription", subscription))
 
 	if stanSub, ok := s.subscriptions[channel][subscription]; ok {
