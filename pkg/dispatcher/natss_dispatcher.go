@@ -440,5 +440,4 @@ func (s *subscriptionsSupervisor) getChannelReferenceFromHost(host string) (even
 		return cr, fmt.Errorf("Invalid HostName:%q. HostName not found in any of the watched natss channels", host)
 	}
 	return cr, nil
-	i
 }
