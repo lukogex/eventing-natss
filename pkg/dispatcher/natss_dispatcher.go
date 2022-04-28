@@ -98,15 +98,16 @@ func NewNatssDispatcher(args Args) (NatsDispatcher, error) {
 	}
 
 	d := &subscriptionsSupervisor{
-		logger:         args.Logger,
-		dispatcher:     eventingchannels.NewMessageDispatcher(args.Logger),
-		subscriptions:  make(SubscriptionChannelMapping),
-		connect:        make(chan struct{}, maxElements),
-		natssURL:       args.NatssURL,
-		clusterID:      args.ClusterID,
-		clientID:       args.ClientID,
-		ackWaitMinutes: args.AckWaitMinutes,
-		maxInflight:    args.MaxInflight,
+		logger:                args.Logger,
+		dispatcher:            eventingchannels.NewMessageDispatcher(args.Logger),
+		subscriptions:         make(SubscriptionChannelMapping),
+		connect:               make(chan struct{}, maxElements),
+		natssURL:              args.NatssURL,
+		clusterID:             args.ClusterID,
+		clientID:              args.ClientID,
+		ackWaitMinutes:        args.AckWaitMinutes,
+		maxInflight:           args.MaxInflight,
+		concurrentDispatching: args.ConcurrentDispatching,
 	}
 
 	receiver, err := eventingchannels.NewMessageReceiver(
