@@ -321,22 +321,11 @@ func (s *subscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 			s.logger.Debug("dispatch message", zap.String("deadLetter", deadLetter.String()), zap.Uint64("sequence", stanMsg.Sequence))
 		}
 
-		go func(ctx context.Context, message *natsscloudevents.Message, destination *url.URL, reply *url.URL, deadLetter *url.URL) {
-			executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
-			if err != nil {
-				s.logger.Error("Failed to dispatch message: ", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
-				return
-			}
-			// TODO: Actually report the stats
-			// https://github.com/knative-sandbox/eventing-natss/issues/39
-			s.logger.Debug("Dispatch details", zap.Any("DispatchExecutionInfo", executionInfo), zap.Uint64("sequence", message.Msg.Sequence))
-
-			if err := message.Msg.Ack(); err != nil {
-				s.logger.Error("failed to acknowledge message", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
-			}
-
-			s.logger.Debug("message dispatched", zap.Any("channel", channel), zap.Uint64("sequence", message.Msg.Sequence), zap.String("message", message.Msg.String()))
-		}(ctx, message, destination, reply, deadLetter)
+		if s.concurrentDispatching {
+			go s.dispatchMessage(ctx, message, destination, reply, deadLetter, channel)
+		} else {
+			s.dispatchMessage(ctx, message, destination, reply, deadLetter, channel)
+		}
 	}
 
 	ch := getSubject(channel)
@@ -365,6 +354,23 @@ func (s *subscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 
 	s.logger.Sugar().Infof("NATSS Subscription created: %+v", natssSub)
 	return &natssSub, nil
+}
+
+func (s *subscriptionsSupervisor) dispatchMessage(ctx context.Context, message *natsscloudevents.Message, destination *url.URL, reply *url.URL, deadLetter *url.URL, channel eventingchannels.ChannelReference) {
+	executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
+	if err != nil {
+		s.logger.Error("Failed to dispatch message: ", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
+		return
+	}
+	// TODO: Actually report the stats
+	// https://github.com/knative-sandbox/eventing-natss/issues/39
+	s.logger.Debug("Dispatch details", zap.Any("DispatchExecutionInfo", executionInfo), zap.Uint64("sequence", message.Msg.Sequence))
+
+	if err := message.Msg.Ack(); err != nil {
+		s.logger.Error("failed to acknowledge message", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
+	}
+
+	s.logger.Debug("message dispatched", zap.Any("channel", channel), zap.Uint64("sequence", message.Msg.Sequence))
 }
 
 // should be called only while holding subscriptionsMux
