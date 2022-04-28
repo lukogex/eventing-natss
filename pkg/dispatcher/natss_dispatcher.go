@@ -324,9 +324,9 @@ func (s *subscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 		}
 
 		if s.concurrentDispatching {
-			go dispatchMessage(ctx, message, destination, reply, deadLetter)
+			go s.dispatchMessage(ctx, message, destination, reply, deadLetter, channel)
 		} else {
-			dispatchMessage(ctx, message, destination, reply, deadLetter)
+			s.dispatchMessage(ctx, message, destination, reply, deadLetter, channel)
 		}
 	}
 
@@ -358,7 +358,7 @@ func (s *subscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 	return &natssSub, nil
 }
 
-func dispatchMessage(ctx context.Context, message *natsscloudevents.Message, destination *url.URL, reply *url.URL, deadLetter *url.URL) {
+func (s *subscriptionsSupervisor) dispatchMessage(ctx context.Context, message *natsscloudevents.Message, destination *url.URL, reply *url.URL, deadLetter *url.URL, channel eventingchannels.ChannelReference) {
 	executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
 	if err != nil {
 		s.logger.Error("Failed to dispatch message: ", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
