@@ -303,7 +303,7 @@ func (s *subscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 			s.logger.Error("could not create a message", zap.Error(err), zap.Uint64("sequence", stanMsg.Sequence))
 			return
 		}
-		s.logger.Debug("NATSS message received", zap.String("subject", stanMsg.Subject), zap.Uint64("sequence", stanMsg.Sequence), zap.Time("timestamp", time.Unix(stanMsg.Timestamp, 0)))
+		s.logger.Debug("NATSS message received", zap.Any("channel", channel), zap.String("subject", stanMsg.Subject), zap.Uint64("sequence", stanMsg.Sequence), zap.Time("timestamp", time.Unix(stanMsg.Timestamp, 0)))
 
 		var destination *url.URL
 		if !subscription.SubscriberURI.IsEmpty() {
@@ -324,9 +324,9 @@ func (s *subscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 		}
 
 		if s.concurrentDispatching {
-			go s.dispatchMessage(ctx, message, destination, reply, deadLetter, channel)
+			go s.dispatchMessage(ctx, message, destination, reply, deadLetter)
 		} else {
-			s.dispatchMessage(ctx, message, destination, reply, deadLetter, channel)
+			s.dispatchMessage(ctx, message, destination, reply, deadLetter)
 		}
 	}
 
@@ -358,7 +358,7 @@ func (s *subscriptionsSupervisor) subscribe(ctx context.Context, channel eventin
 	return &natssSub, nil
 }
 
-func (s *subscriptionsSupervisor) dispatchMessage(ctx context.Context, message *natsscloudevents.Message, destination *url.URL, reply *url.URL, deadLetter *url.URL, channel eventingchannels.ChannelReference) {
+func (s *subscriptionsSupervisor) dispatchMessage(ctx context.Context, message *natsscloudevents.Message, destination *url.URL, reply *url.URL, deadLetter *url.URL) {
 	executionInfo, err := s.dispatcher.DispatchMessage(ctx, message, nil, destination, reply, deadLetter)
 	if err != nil {
 		s.logger.Error("Failed to dispatch message: ", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
@@ -372,7 +372,7 @@ func (s *subscriptionsSupervisor) dispatchMessage(ctx context.Context, message *
 		s.logger.Error("failed to acknowledge message", zap.Error(err), zap.Uint64("sequence", message.Msg.Sequence))
 	}
 
-	s.logger.Debug("message dispatched", zap.Any("channel", channel), zap.Uint64("sequence", message.Msg.Sequence))
+	s.logger.Debug("message dispatched", zap.Uint64("sequence", message.Msg.Sequence))
 }
 
 // should be called only while holding subscriptionsMux
